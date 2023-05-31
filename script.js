@@ -3,6 +3,9 @@ var colors;
 var groups;
 var images;
 
+// D3 Selections
+var swatches;
+
 async function setup() {
   await parseData();
   drawSwatches();
@@ -49,4 +52,13 @@ function parseListString(string) {
   return string.split(",").map((s) => parseInt(s));
 }
 
-function drawSwatches() {}
+function drawSwatches() {
+  // prettier-ignore
+  d3.select("#swatches")
+    .selectAll("img")
+    .data(colors)
+    .enter()
+    .append("img")
+    .attr("class", "mr1 w2 h2 pointer dim")
+    .attr("src", c => "./assets/swatches/" + c.swatch);
+}
