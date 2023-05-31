@@ -101,7 +101,11 @@ function drawGrids() {
   gridImageContainers = gridContentCards
     .append("div")
     .attr("id", (c) => "grid-image-" + c.id)
-    .attr("class", "relative h-100 pointer dim");
+    .attr("class", "relative h-100 pointer dim")
+    .on("click", (event, c) => {
+      event.stopPropagation();
+      update(c);
+    });
 
   gridImageContainers
     .append("img")
@@ -124,6 +128,7 @@ function drawGrids() {
 
 function update(activeColor) {
   updateSwatches(activeColor);
+  updateGrids(activeColor);
 }
 
 function updateSwatches(activeColor) {
@@ -143,6 +148,36 @@ function updateSwatches(activeColor) {
       .classed("ba bw1 b--orange", false)
       .classed("o-10", false)
       .classed("dim", true);
+  }
+}
+
+function updateGrids(activeColor) {
+  if (activeColor) {
+    gridImageContainers
+      .classed("ba bw1 b--orange", (c) => c.id == activeColor.id)
+      .classed(
+        "o-10",
+        (c) => !(c.id == activeColor.id || activeColor.parts.includes(c.id))
+      )
+      .classed(
+        "dim",
+        (c) => c.id == activeColor.id || activeColor.parts.includes(c.id)
+      );
+    gridTexts
+      .classed("orange", (c) => c.id == activeColor.id)
+      .classed(
+        "o-10",
+        (c) => !(c.id == activeColor.id || activeColor.parts.includes(c.id))
+      );
+    document
+      .getElementById("grid-image-" + activeColor.id)
+      .scrollIntoView({ behavior: "smooth", inline: "center" });
+  } else {
+    gridImageContainers
+      .classed("ba bw1 b--orange", false)
+      .classed("o-10", false)
+      .classed("dim", true);
+    gridTexts.classed("orange", false).classed("o-10", false);
   }
 }
 
