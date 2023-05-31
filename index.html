@@ -26,9 +26,15 @@
       <div id="swatches" class="ph4 pv3 bb b--black-10">
         <!--drawSwatches-->
       </div>
-      <div id="connections" class="ph3 pt3 overflow-x-scroll">
+      <div id="connections" class="ph3 pt3 overflow-x-scroll relative">
         <div id="grids" class="inline-flex pb5"><!--drawGrids--></div>
-        <div id="links"><!--drawLinks--></div>
+        <svg
+          id="links"
+          class="absolute top-0 left-0"
+          style="pointer-events: none"
+        >
+          <!--drawLinks-->
+        </svg>
       </div>
     </div>
   </body>

@@ -7,11 +7,13 @@ var images;
 var swatches;
 var gridImageContainers;
 var gridTexts;
+var links;
 
 async function setup() {
   await parseData();
   drawSwatches();
   drawGrids();
+  drawLinks();
 }
 
 async function parseData() {
@@ -124,11 +126,20 @@ function drawGrids() {
   //prettier-ignore-end
 }
 
+function drawLinks() {
+  var gridBBox = getBoundingBox("grids");
+  links = d3
+    .select("#links")
+    .attr("width", gridBBox.width)
+    .attr("height", gridBBox.height);
+}
+
 // Update UI
 
 function update(activeColor) {
   updateSwatches(activeColor);
   updateGrids(activeColor);
+  updateLinks(activeColor);
 }
 
 function updateSwatches(activeColor) {
@@ -181,6 +192,59 @@ function updateGrids(activeColor) {
   }
 }
 
+function updateLinks(activeColor) {
+  if (activeColor) {
+    d3.select("#links").selectAll("path").remove();
+
+    var connections = document.getElementById("connections");
+    var connectionsBBox = getBoundingBox("connections");
+
+    var sourceBBox = getBoundingBox("grid-image-" + activeColor.id);
+
+    var linkGenerator = d3.linkHorizontal();
+
+    for (var i = 0; i < activeColor.parts.length; i++) {
+      var targetBBox = getBoundingBox("grid-image-" + activeColor.parts[i]);
+
+      var sourceX = connections.scrollLeft + sourceBBox.x;
+      var sourceY = sourceBBox.y - connectionsBBox.y;
+      var targetX = connections.scrollLeft + targetBBox.x;
+      var targetY = targetBBox.y - connectionsBBox.y;
+
+      if (targetX < sourceX) {
+        sourceY += sourceBBox.height / 2;
+        targetX += targetBBox.width;
+        targetY += targetBBox.height / 2;
+      } else if (targetX == sourceX && targetY < sourceY) {
+        sourceX += sourceBBox.width / 2;
+        targetX += targetBBox.width / 2;
+        targetY += targetBBox.height;
+      } else if (targetX == sourceX && targetY > sourceY) {
+        sourceX += sourceBBox.width / 2;
+        sourceY += sourceBBox.height;
+        targetX += targetBBox.width / 2;
+      } else {
+        sourceX += sourceBBox.width;
+        sourceY += sourceBBox.height / 2;
+        targetY += targetBBox.height / 2;
+      }
+
+      var path = linkGenerator({
+        source: [sourceX, sourceY],
+        target: [targetX, targetY],
+      });
+
+      d3.select("#links")
+        .append("path")
+        .attr("d", path)
+        .attr("fill", "none")
+        .attr("stroke", "#ff6300");
+    }
+  } else {
+    d3.select("#links").selectAll("path").remove();
+  }
+}
+
 // Helpers
 
 function getRowIndex(index) {
@@ -200,4 +264,8 @@ function getColIndex(index) {
 
 function getImage(id) {
   return images.find((image) => image.id == id);
+}
+
+function getBoundingBox(id) {
+  return document.getElementById(id).getBoundingClientRect();
 }
