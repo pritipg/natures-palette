@@ -63,7 +63,11 @@ function drawSwatches() {
     .enter()
     .append("img")
       .attr("class", "mr1 w2 h2 pointer dim")
-      .attr("src", c => "./assets/swatches/" + c.swatch);
+      .attr("src", c => "./assets/swatches/" + c.swatch)
+      .on("click", (event, c) => {
+        event.stopPropagation();
+        update(c);
+      })
 }
 
 function drawGrids() {
@@ -114,6 +118,32 @@ function drawGrids() {
     .text((c) => c.name);
 
   //prettier-ignore-end
+}
+
+// Update UI
+
+function update(activeColor) {
+  updateSwatches(activeColor);
+}
+
+function updateSwatches(activeColor) {
+  if (activeColor) {
+    swatches
+      .classed("ba bw1 b--orange", (c) => c.id == activeColor.id)
+      .classed(
+        "o-10",
+        (c) => !(c.id == activeColor.id || activeColor.parts.includes(c.id))
+      )
+      .classed(
+        "dim",
+        (c) => c.id == activeColor.id || activeColor.parts.includes(c.id)
+      );
+  } else {
+    swatches
+      .classed("ba bw1 b--orange", false)
+      .classed("o-10", false)
+      .classed("dim", true);
+  }
 }
 
 // Helpers
