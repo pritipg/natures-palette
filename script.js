@@ -2,12 +2,16 @@
 var colors;
 var groups;
 var images;
+var tags;
 
 // D3 Selections
 var swatches;
 var gridImageContainers;
 var gridTexts;
 var links;
+
+//Active Tag
+var activeTag;
 
 async function setup() {
   await parseData();
@@ -48,6 +52,14 @@ async function parseData() {
 
   // unique color groups
   groups = _.uniq(colors.map((color) => color.group));
+
+  // parse tags
+  tags = await d3.csv("./assets/data/tags.csv", (d) => {
+    return {
+      id: d["id"],
+      color: parseInt(d["color"]),
+    };
+  });
 }
 
 function parseListString(string) {
@@ -66,6 +78,7 @@ function drawSwatches() {
     .append("img")
       .attr("class", "mr1 w2 h2 pointer dim")
       .attr("src", c => "./assets/swatches/" + c.swatch)
+      .attr("title", c => c.id)
       .on("click", (event, c) => {
         event.stopPropagation();
         update(c);
@@ -245,6 +258,56 @@ function updateLinks(activeColor) {
   }
 }
 
+// Connect Arduino to Sketch
+
+async function connectReader() {
+  var port = await navigator.serial.requestPort({});
+  await port.open({
+    baudRate: 9600,
+    dataBits: 8,
+    stopBits: 1,
+    parity: "none",
+    bufferSize: 255,
+    flowControl: "none",
+  });
+
+  var reader = port.readable.getReader();
+  var readerData = "";
+
+  while (true) {
+    var { value, done } = await reader.read();
+
+    if (done) {
+      // Allow the serial port to be closed later.
+      reader.releaseLock();
+      break;
+    }
+
+    var receivedStr = new TextDecoder().decode(value);
+    readerData += receivedStr;
+
+    var lines = readerData.split("\x0d\x0a");
+
+    for (var i = 0; i < lines.length - 1; i++) {
+      onRead(lines[i]);
+    }
+
+    readerData = lines[lines.length - 1];
+  }
+}
+
+function onRead(id) {
+  if (id == activeTag) {
+    return;
+  }
+  var tag = getTag(id);
+  if (tag) {
+    var color = getColor(tag.color);
+    update(color);
+    activeTag = id;
+  }
+}
+
 // Helpers
 
 function getRowIndex(index) {
@@ -262,8 +325,16 @@ function getColIndex(index) {
   if (mod == 2) return col + 2;
 }
 
+function getColor(id) {
+  return colors.find((color) => color.id == id);
+}
+
 function getImage(id) {
   return images.find((image) => image.id == id);
+}
+
+function getTag(id) {
+  return tags.find((tag) => tag.id == id);
 }
 
 function getBoundingBox(id) {

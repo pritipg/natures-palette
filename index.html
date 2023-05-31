@@ -19,8 +19,14 @@
     <script src="./script.js"></script>
   </head>
   <body class="bg-white sans-serif near-black" onload="setup()">
-    <header class="ph4 pv1 bb b--black-10">
+    <header class="ph4 pv1 bb b--black-10 flex justify-between items-center">
       <h1 class="f3 fw5">Werner's Nomenclature of Colors</h1>
+      <button
+        class="bn br2 pa2 bg-lightest-blue near-black pointer dim"
+        onclick="connectReader()"
+      >
+        Connect
+      </button>
     </header>
     <div id="main" onclick="update()">
       <div id="swatches" class="ph4 pv3 bb b--black-10">
