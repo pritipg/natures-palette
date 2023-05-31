@@ -9,10 +9,7 @@ async function setup() {
 
 async function parseData() {
   // parse colors
-  // parse images
-
   colors = await d3.csv("./data/colors.csv", (d) => {
-    console.log(d);
     return {
       id: parseInt(d["ID"]),
       name: d["Name"],
@@ -28,6 +25,20 @@ async function parseData() {
       images: parseListString(d["Image IDs"]),
     };
   });
+
+  // parse images
+  images = await d3.csv("./data/images.csv", (d) => {
+    return {
+      id: parseInt(d["ID"]),
+      author: d["Author"],
+      title: d["Title"],
+      url: d["URL"],
+      file: d["Image file"],
+    };
+  });
+
+  // unique color groups
+  groups = _.uniq(colors.map((color) => color.group));
 }
 
 function parseListString(string) {
