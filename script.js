@@ -5,11 +5,12 @@ var images;
 
 async function setup() {
   await parseData();
+  drawSwatches();
 }
 
 async function parseData() {
   // parse colors
-  colors = await d3.csv("./data/colors.csv", (d) => {
+  colors = await d3.csv("./assets/data/colors.csv", (d) => {
     return {
       id: parseInt(d["ID"]),
       name: d["Name"],
@@ -27,7 +28,7 @@ async function parseData() {
   });
 
   // parse images
-  images = await d3.csv("./data/images.csv", (d) => {
+  images = await d3.csv("./assets/data/images.csv", (d) => {
     return {
       id: parseInt(d["ID"]),
       author: d["Author"],
@@ -47,3 +48,5 @@ function parseListString(string) {
   }
   return string.split(",").map((s) => parseInt(s));
 }
+
+function drawSwatches() {}
